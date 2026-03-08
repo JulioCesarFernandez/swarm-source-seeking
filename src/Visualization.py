@@ -7,13 +7,12 @@ from Simulation import Simulation
 SIM_TIME = 40.0
 DT = 0.1
 NUM_ROBOTS = 3
+guardarVideo = 0
+#1:Si, 0:No
+nombre_archivo_video = 'simulacion_source_seeking10-expanded-high-K.mp4'
 
 # Inicializar con el sistema de Triple Semilla
 sim = Simulation(map_seed=42, centroid_seed=3, swarm_pos_seed=101, dt=DT)
-guardarVideo = 0
-#1:Si, 0:No
-nombre_archivo_video = 'simulacion_source_seeking7-BuenaConvergencia.mp4'
-
 sim.deploy_swarm(num_robots=NUM_ROBOTS, robot_type='non-holonomic')
 
 # Preparación de la figura para telemetría visual

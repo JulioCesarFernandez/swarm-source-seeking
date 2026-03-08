@@ -43,7 +43,7 @@ class Simulation:
             else:
                 # Parámetros para uniciclo: u_r, k_gamma, alpha_inicial
                 alpha_i = rng_s.uniform(-np.pi, np.pi)
-                new_robot = NonHolonomicRobot(i, pos_i, u_r=2.0, k_gamma=0.5, initial_alpha=alpha_i)
+                new_robot = NonHolonomicRobot(i, pos_i, u_r=2.0, k_gamma=2, initial_alpha=alpha_i)
             
             self.robots.append(new_robot)
         

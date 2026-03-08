@@ -1,6 +1,6 @@
 import numpy as np
 from Robot import Robot
-#ley proporcional simple
+#control con estado aumentado, sistema expandido, delta star
 class NonHolonomicRobot(Robot):
     def __init__(self, robot_id: int, initial_pos: np.ndarray, u_r: float, k_gamma: float, initial_alpha: float):					 
         super().__init__(robot_id, initial_pos)
@@ -27,11 +27,7 @@ class NonHolonomicRobot(Robot):
         else:
             target_alpha = np.arctan2(ascent_vector[1], ascent_vector[0])
 
-        # 2. Calcular error de orientación delta (Eq. 8)
-        # Usamos np.arctan2 para normalizar la diferencia en (-pi, pi]
-        delta = np.arctan2(np.sin(target_alpha - self.alpha), 
-                           np.cos(target_alpha - self.alpha))
-		
+        
 		# 2. Calcular la variación del campo guía (omega_d)
         # Estimamos cuánto ha rotado el vector objetivo desde el último frame
         d_target_alpha = np.arctan2(np.sin(target_alpha - self.last_target_alpha), 
@@ -51,22 +47,13 @@ class NonHolonomicRobot(Robot):
         self.delta_star += (omega_i - omega_d) * dt
 
         # 4. Actualizar orientación física del robot
-        #self.alpha += omega_i * dt
+        self.alpha += omega_i * dt
         
         # 5. Actualizar posición (Cinemática de Uniciclo)
-        #velocity = self.u_r * np.array([np.cos(self.alpha), np.sin(self.alpha)])
-        #self._position += velocity * dt
-
-        # Guardar estado para el siguiente paso
-        #self.last_target_alpha = target_alpha
-        
-        
-        # 3. Ley de control angular (Eq. 181)
-        omega = self.k_gamma * delta
-
-        # 4. Actualizar estado del robot (Integración de Euler)
-        self.alpha += omega * dt
-        
-        # r_dot = u_r * [cos(alpha), sin(alpha)]
         velocity = self.u_r * np.array([np.cos(self.alpha), np.sin(self.alpha)])
         self._position += velocity * dt
+
+        # Guardar estado para el siguiente paso
+        self.last_target_alpha = target_alpha
+        
+     

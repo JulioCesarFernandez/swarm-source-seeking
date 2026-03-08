@@ -80,8 +80,27 @@ El paper sugiere teóricamente valores donde  para una convergencia rápida. Sin
 
 ---
 
-## 5. Incorporacion del sistema extendido para el error angular
 
+## 5. Incorporación del Sistema Extendido para el Error Angular ($\delta_{i,*}$)
+
+Para garantizar la estabilidad global del controlador no-holónomo, la simulación implementa el **sistema aumentado** que aborda la naturaleza topológica del espacio angular.
+
+### 5.1. El Problema de la Discontinuidad en $S^1$
+El error de orientación estándar $\delta_i \in (-\pi, \pi]$ presenta una discontinuidad en $\pm \pi$. Un controlador proporcional simple generaría saltos bruscos en la velocidad angular al cruzar este umbral.
+
+### 5.2. Solución: Variable "Desenrollada" ($\delta_{i,*}$)
+Se introduce una variable de estado aumentada $\delta_{i,*}$ que vive en la recta real $\mathbb{R}$. Esta variable rastrea el ángulo acumulado, permitiendo que la ley de control sea continua:
+
+$$\omega_i = -k_{\gamma}\delta_{i,*} + A_i$$
+
+Donde $A_i$ es un parámetro de pre-alimentación (feedforward). En esta simulación, la dinámica del error se rige por:
+
+$$\dot{\delta}_{i,*} = \omega_i - \omega_d = -k_{\gamma}\delta_{i,*} + (A_i - \omega_d)$$
+
+Bajo este esquema, incluso si $\omega_d$ (la rotación del campo) es desconocida, una ganancia $k_{\gamma}$ suficientemente alta garantiza que el error permanezca acotado y el robot siga la dirección de ascenso sin oscilaciones por discontinuidad.
+
+Comprobamos que converge mejor pero se queda lejos del maximo y exige kappa grande
+---
 
 
 ## Resultados y Visualización

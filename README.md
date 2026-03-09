@@ -99,8 +99,59 @@ $$\dot{\delta}_{i,*} = \omega_i - \omega_d = -k_{\gamma}\delta_{i,*} + (A_i - \o
 
 Bajo este esquema, incluso si $\omega_d$ (la rotación del campo) es desconocida, una ganancia $k_{\gamma}$ suficientemente alta garantiza que el error permanezca acotado y el robot siga la dirección de ascenso sin oscilaciones por discontinuidad.
 
+### 5.3. Observaciones Empíricas sobre la Convergencia
 Comprobamos que converge mejor pero se queda lejos del maximo y exige kappa grande
+Durante las pruebas en simulación, se comprobó que este sistema extendido mejora notablemente la suavidad de las trayectorias, evitando el "chattering" (castañeteo) direccional. Sin embargo, **exige una ganancia $k_{\gamma}$ (kappa) considerablemente grande** para asegurar la estabilidad. Como efecto colateral de esta alta ganancia, la inercia rotacional domina el movimiento, provocando que el enjambre entre en órbita prematuramente y se estabilice en un ciclo límite estacionario que **se queda lejos del máximo real $\vec{r}^*$** del campo.
+Cambios incluidos en NonHolonimicRobot2.py
 ---
+
+## 6. Análisis Avanzado de Estabilidad y Telemetría
+
+Para validar rigurosamente las condiciones del Teorema de Poincaré-Bendixson y la aparición del ciclo límite bajo degeneración geométrica, se ha implementado una suite de instrumentación analítica separada del núcleo de la simulación.
+
+### 6.1. Marco de Referencia Intrínseco y Covarianza Espacial
+
+El análisis de estabilidad se ha desacoplado de los ejes cartesianos globales ($X, Y$). El sistema computa en tiempo real un marco intrínseco basado en el vector relativo a la fuente:
+
+* **Eje Longitudinal ($\mathbf{\hat{e}}_{\parallel}$):** Dirección de alineación ideal hacia/desde el gradiente.
+* **Eje Transversal ($\mathbf{\hat{e}}_{\perp}$):** Dirección ortogonal donde se desarrollan las oscilaciones inestables.
+
+Mediante la proyección de la matriz de covarianza del enjambre sobre estos ejes, el simulador extrae la **Varianza Longitudinal ($V_{\parallel}$)** y la **Varianza Transversal ($V_{\perp}$)** para cualquier ángulo de ataque, garantizando que el análisis sea invariante a la rotación.
+
+### 6.2. Monitoreo de Bifurcaciones (Estabilidad de Lyapunov)
+
+El motor gráfico calcula en cada iteración la matriz Jacobiana linealizada del sistema de control no-holonómico. Monitoriza la relación geométrica crítica $\rho = \frac{V_{\perp}}{V_{\parallel} D_c}$ y el discriminante del sistema $\Delta$:
+
+$$\Delta = k_{\gamma}^2 - 4 u k_{\gamma} \rho$$
+
+Dependiendo del signo de $\Delta$, la telemetría clasifica el régimen del enjambre en tiempo real:
+
+* **Nodo Inestable ($\Delta \ge 0$):** Raíces reales. El enjambre intenta una corrección de fase monótona (giro brusco).
+* **Foco Inestable ($\Delta < 0$):** Raíces complejas conjugadas. Inyección de oscilaciones laterales divergentes que, al saturar la ley de control, originan el avance inverso estable.
+
+### 6.3. Visualización Vectorial
+
+Se ha incorporado la renderización dinámica de campos vectoriales en la interfaz visual:
+
+* Vectores del marco intrínseco anclados al centroide del enjambre.
+* Vector de ascenso estimado $\hat{L}$ (Consenso), permitiendo observar visualmente el fenómeno de "filtrado espacial" espacial cuando el enjambre se aplasta transversalmente y $\hat{L}$ se vuelve ortogonal a la fuente.
+
+### 6.4. Sistema de Adquisición de Datos (DAQ)
+
+Para el análisis post-simulación (Root Locus, diagramas de fase), se ha integrado un módulo DAQ que registra una serie temporal en formato CSV (`telemetria_estabilidad_enjambre.csv`). Este archivo almacena con alta precisión ($f_s = 1/dt$):
+
+* Posiciones teóricas y métricas de degeneración.
+* Evolución de las varianzas ($V_{\parallel}$, $V_{\perp}$) y la distancia a la fuente ($D_c$).
+* Partes reales e imaginarias de los autovalores $\lambda_{1,2}$ en cada instante de tiempo.
+
+### 6.5. Nuevos Módulos de Ejecución
+
+La arquitectura ahora soporta múltiples escenarios de visualización para distintos propósitos de ingeniería:
+
+* `Stability_Analysis_Viz.py`: Análisis de estabilidad asumiendo avance en el eje X global.
+* `Stability_Analysis_General_Directions_Viz.py`: Análisis robusto con marco de referencia intrínseco y renderizado vectorial.
+* `Stability_Analysis_General_Directions_Viz2.py`: Análisis robusto con marco de referencia intrínseco y renderizado vectorial.
+* `Stability_Analysis_General_Directions_Viz_Telemetry.py`: Escenario completo con visualización avanzada y registro DAQ activo en CSV.
 
 
 ## Resultados y Visualización

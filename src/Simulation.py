@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from SwarmController import SwarmController 
 from ScalarField import ScalarField
+from ScalarQuadraticField import ScalarQuadraticField
 from HolonomicRobot import HolonomicRobot
 from NonHolonomicRobot import NonHolonomicRobot
+from NonHolonomicRobot2 import NonHolonomicRobot2
 class Simulation:
     def __init__(self, map_seed: int, centroid_seed: int, swarm_pos_seed: int, dt: float = 0.1):
         """
@@ -15,7 +17,7 @@ class Simulation:
         self.swarm_pos_seed = swarm_pos_seed
         
         # 1. Inicializar el campo escalar (Entorno)
-        self.field = ScalarField(map_seed)
+        self.field = ScalarQuadraticField(map_seed)
         
         # 2. Swarm y Controlador
         self.robots = []
@@ -43,7 +45,7 @@ class Simulation:
             else:
                 # Parámetros para uniciclo: u_r, k_gamma, alpha_inicial
                 alpha_i = rng_s.uniform(-np.pi, np.pi)
-                new_robot = NonHolonomicRobot(i, pos_i, u_r=2.0, k_gamma=2, initial_alpha=alpha_i)
+                new_robot = NonHolonomicRobot(i, pos_i, u_r=2.0, k_gamma=0.5, initial_alpha=alpha_i)
             
             self.robots.append(new_robot)
         

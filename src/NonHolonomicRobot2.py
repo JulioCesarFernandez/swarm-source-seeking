@@ -1,7 +1,7 @@
 import numpy as np
 from Robot import Robot
 #control con estado aumentado, sistema expandido, delta star
-class NonHolonomicRobot(Robot):
+class NonHolonomicRobot2(Robot):
     def __init__(self, robot_id: int, initial_pos: np.ndarray, u_r: float, k_gamma: float, initial_alpha: float):					 
         super().__init__(robot_id, initial_pos)
         self.u_r = u_r              # Rapidez constante [cite: 64]
